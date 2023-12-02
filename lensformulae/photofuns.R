@@ -1,8 +1,8 @@
 
 
 camera_info <- data.frame(
-  camera = c("Nikon D5","Nikon D7100","Moravian Astro","Takahari 5X4"),
-  pixel_size= c(6.4,3.9,9,15)
+  camera = c("Nikon D5","Nikon D750","Nikon D7100","Moravian Astro","Takahari 5X4"),
+  pixel_size= c(6.4,6.0,3.9,9,15)
 )
 
 
