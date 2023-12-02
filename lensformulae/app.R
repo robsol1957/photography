@@ -8,7 +8,7 @@
 #
 source("photofuns.R")
 library(shiny)
-
+width <- NA
 # Define UI for application that draws a histogram
 ui <- fluidPage(# Application title
   titlePanel("Lens Calculations"),
@@ -36,24 +36,29 @@ ui <- fluidPage(# Application title
       textOutput("balanced_f"),
       numericInput(
         inputId = "focal_length",
-        label = "Focal length in mm",
+        label = "Focal length of lens in mm",
         value = 50,
-        width = '70px'
+        width = width
       ),
       numericInput(
         inputId = "focal_distance",
         label = "Focal distance in m",
         value = 100,
-        width = '70px'
+        width = width
       ),
       numericInput(
         inputId = "f_stop",
         label = "f stop ",
         value = 11,
-        width = '70px'
+        width = width
+      ),
+      numericInput(
+        inputId = "Zone_of_Confusion",
+        label = "Zone of confusion in Pixels ",
+        value = 1,
+        width = width
       ),
       textOutput("hyperfocal_dist"),
-      textOutput("min_focus_dist"),
       textOutput("max_focus_dist")
     )
     
@@ -66,11 +71,14 @@ server <- function(input, output) {
     this_camera_info <- subset(camera_info, camera == input$camera)
     pixel_size <- this_camera_info$pixel_size
   })
+  zofc_pix <- reactive(
+    input$Zone_of_Confusion
+  )
   hyperfocal_dist <- reactive({
     f = depth_of_field(
       focal_length = input$focal_length,
       f = input$f_stop,
-      ZofC = pixel() ,
+      ZofC = pixel()*zofc_pix() ,
       focal_dist = input$focal_distance
     )
     f$focusdata$H
@@ -79,7 +87,7 @@ server <- function(input, output) {
     f = depth_of_field(
       focal_length = input$focal_length,
       f = input$f_stop,
-      ZofC = pixel() ,
+      ZofC = pixel()*zofc_pix() ,
       focal_dist = input$focal_distance
     )
     f$focusdata$near
@@ -88,24 +96,47 @@ server <- function(input, output) {
     f = depth_of_field(
       focal_length = input$focal_length,
       f = input$f_stop,
-      ZofC = pixel() ,
+      ZofC = pixel()*zofc_pix() ,
       focal_dist = input$focal_distance
     )
     f$focusdata$far
   })
   output$Pixel_size <-
-    renderText(paste0("pixel size = ", pixel()))
+    renderText(paste0("Pixel Size = ", pixel()," microns"))
   output$balanced_f <-
-    reactive(paste0("Balanced F stop = f_", round(balancedf(pixel(
-      
-    )))))
+    reactive(paste0("Balanced F stop = f_",
+                    round(balancedf(pixel())),
+                    " (focal ratio where lens resolution = sensor resolution)")
+             )
   
-  output$hyperfocal_dist = renderText(paste0("hyper-focal dist ", signif(hyperfocal_dist(), digits =
-                                                                         3)))
-  output$min_focus_dist = renderText(paste0("min focal dist ", signif(focal_dist_min(), digits =
-                                                                        3)))
-  output$max_focus_dist = renderText(paste0("max focal dist ", signif(focal_dist_max(), digits =
-                                                                        3)))
+  output$hyperfocal_dist = renderText(
+    paste0("Hyper-focal Dist "
+           , signif(hyperfocal_dist(),
+                    digits = 3),
+           " meters (minimum focal distance where infinity is within focus)")
+    )
+  # output$min_focus_dist = renderText(
+  #   paste0("min focal dist ",
+  #          signif(focal_dist_min()
+  #                 , digits = 3),
+  #          " meters"
+  #          )
+  #   )
+  # output$max_focus_dist = renderText(
+  #   paste0("max focal dist ",
+  #          signif(focal_dist_max(),
+  #                 digits = 3),
+  #          " meters")
+  #   )
+  
+  output$max_focus_dist = renderText(
+    paste0("Depth of Field (meters) ",
+           signif(focal_dist_min()
+                  , digits = 3),
+          " -> ",
+           signif(focal_dist_max(),
+                  digits = 3))
+  )
 }
 
 # Run the application
