@@ -5,7 +5,7 @@ account: robsol1958
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 10696467
-bundleId: 7997900
+bundleId: 8000844
 url: https://robsol1958.shinyapps.io/lensformulae/
 version: 1
 asMultiple: FALSE
