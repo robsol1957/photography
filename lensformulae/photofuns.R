@@ -1,9 +1,14 @@
 
-
-camera_info <- data.frame(
-  camera = c("Nikon D5","Nikon D750","Nikon D7100","Moravian Astro","Takahari 5X4"),
-  pixel_size= c(6.4,6.0,3.9,9,15)
-)
+library(readxl)
+# 
+# camera_info <- read_xlsx("lensformulae/cameras.xlsx",sheet="cameras")
+# print_sizes <- read_xlsx("lensformulae/cameras.xlsx",sheet="print_size")
+camera_info <- read_xlsx("cameras.xlsx",sheet="cameras")
+print_sizes <- read_xlsx("cameras.xlsx",sheet="print_size")
+# camera_info <- data.frame(
+#   camera = c("Nikon D5","Nikon D750","Nikon D7100","Moravian Astro","Takahari 5X4"),
+#   pixel_size= c(6.4,5.95,3.9,9,15)
+# )
 
 
 balancedf <- function(pixelsize,n=1,lambda = 500){
