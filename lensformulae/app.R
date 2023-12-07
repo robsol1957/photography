@@ -6,6 +6,10 @@
 #
 #    http://shiny.rstudio.com/
 #
+
+#dir <- "lensformulae//"
+# dir <- ""
+# source(paste0(dir,"photofuns.R"))
 source("photofuns.R")
 library(shiny)
 width <- NA
@@ -47,6 +51,10 @@ ui <- fluidPage(# Application title
       textOutput("Camera_name"),
       textOutput("Pixel_size"),
       textOutput("balanced_f"),
+      textOutput("p_header"),
+      textOutput("max_mag"),
+      textOutput("p_in_mm"),
+      textOutput("p_in_inch"),
       numericInput(
         inputId = "focal_length",
         label = "Focal length of lens in mm",
@@ -90,12 +98,19 @@ get_pixel_size <- function(camera_label){
   this_camera_info <- subset(camera_info, camera == camera_label)[1,]
   pixel_size <- signif(this_camera_info$pixel_size,digits=3)
 }
+
+get_max_print_size <- function(camera_label){
+  this_camera_info <- subset(camera_info, camera == camera_label)[1,]
+}
+
 # Define server logic required to draw a histogram
 server <- function(input, output) {
+  sunits="mm"
   r_get_pixel_size <- reactive(get_pixel_size(input$camera))
   r_magnification <- reactive(get_mag(input$Print_Size,input$camera))
   ZofC = reactive(get_zoc(input$Print_Size,input$camera))
   r_small_f <- reactive(signif(balancedf(ZofC()),digits = 3))
+  r_get_max_print_size <- reactive(get_max_print_size(input$camera))
   
   output$Camera_name <- renderText(paste(input$camera))
   output$Pixel_size <-renderText(
@@ -108,6 +123,10 @@ server <- function(input, output) {
                     round(balancedf(r_get_pixel_size())),
                     " (focal ratio where lens resolution = sensor resolution)")
     )
+  output$p_header <- renderText("Maximum Print size to manage pixalation")
+  output$max_mag <- renderText(paste0("- max Magnification ",signif(r_get_max_print_size()$Max_mag,3)))
+  output$p_in_mm <- renderText(r_get_max_print_size()$MPmm)
+  output$p_in_inch <- renderText(r_get_max_print_size()$MPinch)
   output$magnification <- renderText(
     paste0("-Viewing Magnification ",
            signif(r_magnification(),
@@ -165,7 +184,7 @@ server <- function(input, output) {
                   digits = 3))
   )
   output$pixelation <- renderText(
-    paste0("-Pixel size on print ",signif(r_get_pixel_size()*r_magnification()/1000,digits=3)," mm")
+    paste0("-Pixel size on print ",signif(r_get_pixel_size()*r_magnification()/1000,digits=3))
   )
   output$dpi <- renderText(
     paste0("-Pixels/inch (dpi) ",signif(25.4/(r_get_pixel_size()*r_magnification()/1000),digits=3))
