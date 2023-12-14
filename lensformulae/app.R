@@ -83,15 +83,15 @@ ui <- fluidPage(# Application title
     )
     
   ))
-get_mag <- function(label,camera_label){
-  print <- subset(print_sizes, Label==label)[1,]
+get_mag <- function(print_label,camera_label){
+  print <- subset(print_sizes, Label==print_label)[1,]
   camera <- subset(camera_info,camera==camera_label)[1,]
   magx <- print$x_mm/camera$x
   magy <- print$y_mm/camera$y
   mag <- max(magx,magy)
 }
-get_zoc <- function(label,camera_label){
-  signif(174.625/get_mag(label,camera_label),digits = 3)
+get_zoc <- function(print_label,camera_label){
+  signif(174.625/get_mag(print_label,camera_label),digits = 3)
 }
 
 get_pixel_size <- function(camera_label){
